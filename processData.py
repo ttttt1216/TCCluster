@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import List
 from typing import Union
 from typing import Tuple
+from base import get_variables
 
 
 def reader_notime(typhoon_txt: os.PathLike, code: Union[str, int]) -> Tuple[List[str], pd.DataFrame]:
@@ -54,9 +55,17 @@ def reader(typhoon_txt: os.PathLike, code: Union[str, int]) -> Tuple[List[str], 
         while True:
             header = txt_handle.readline().split()
             if not header:
-                raise ValueError(f"没有在文件里找到编号为{code}的台风")
-            if header[4].strip() == code:
+                header = 'end'
+                data_path = 'end'
+                print(f"没有在文件里找到编号为{code}的台风")
+                return header, data_path
+            if header[4].strip() == code and header[0] == '66666' and header[7] != '(nameless)':
+                # 对于10年，容易出现和气压相似的code
                 break
+            if header[4].strip() == code and header[0] == '66666' and header[7] == '(nameless)':
+                # 对于10年，容易出现和气压相似的code
+                header = 'nameless'
+                return header, 0
         # [txt_handle.readline() for _ in range(int(header[2]))]
         '''
         the file is like
@@ -78,3 +87,47 @@ def reader(typhoon_txt: os.PathLike, code: Union[str, int]) -> Tuple[List[str], 
         data_path["LAT"] = data_path["LAT"] / 10
         data_path["LONG"] = data_path["LONG"] / 10
     return header, data_path
+
+
+def get_tc_name(type: str = 'data',
+                country: str = 'china',
+                tc_list: list = None):
+    mod = get_variables(type, country)
+    if tc_list is None:
+        tc_list = mod.TC_LIST
+    return tc_list
+
+
+def get_year_list(type: str = 'data',
+                  country: str = 'china',
+                  year_list: list = None):
+    mod = get_variables(type, country)
+    if year_list is None:
+        year_list = mod.YEAR_LIST
+    return year_list
+
+
+if __name__ == '__main__':
+    year_list = get_year_list()
+    # 记录每年有效编号的台风个数
+    total_year = {}
+    # 记录所有台风信息，方便下次处理
+    tc_index = []
+    for key1 in year_list:
+        track = r"../CMABSTdata/CH" + str(key1) + "BST.txt"
+        for key2 in range(1, 41, 1):
+            number = str(key1)[-2:] + '{:0>2d}'.format(key2)
+            head, data = reader(track, number)
+            if head == 'end':
+                total_year[key1] = int(number[-2:]) - 1
+                break
+            elif head == 'nameless':
+                continue
+            else:
+                name = r'../output2/' + str(head[4] + head[7]) + '.txt'
+                tc_index.append(str(head[4] + head[7])+'\n')
+                data.to_csv(name, index=False, sep=' ')
+    with open(r'../output2/_index.txt',"w") as f:
+        for key in tc_index:
+            f.write(key)
+
