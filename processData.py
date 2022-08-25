@@ -3,6 +3,7 @@
 # 2022-08-18
 # Tian Zhenshiyi
 
+
 import os
 import pandas as pd
 import numpy as np
@@ -107,12 +108,20 @@ def get_year_list(type: str = 'data',
     return year_list
 
 
+"""
+    1. 将台风路径存储为单个的文件，删除nameless的台风
+    2. 生成对应台风轨迹的_index.py文件
+    3. 生成cluster所需的[x,y,x,y...]形式的。txt文件
+"""
 if __name__ == '__main__':
     year_list = get_year_list()
     # 记录每年有效编号的台风个数
     total_year = {}
     # 记录所有台风信息，方便下次处理
     tc_index = []
+    # 记录每一条台风的坐标情况
+    ts_dict = {}
+    ts_list = []
     for key1 in year_list:
         track = r"../CMABSTdata/CH" + str(key1) + "BST.txt"
         for key2 in range(1, 41, 1):
@@ -125,9 +134,19 @@ if __name__ == '__main__':
                 continue
             else:
                 name = r'../output2/' + str(head[4] + head[7]) + '.txt'
-                tc_index.append(str(head[4] + head[7])+'\n')
+                tc_index.append(str(head[4] + head[7]) + '\n')
                 data.to_csv(name, index=False, sep=' ')
-    with open(r'../output2/_index.txt',"w") as f:
+                ts = []
+                ts_list.append(head[4])
+                for key in data.index:
+                    ts.append(data.LONG[key])
+                    ts.append(data.LAT[key])
+                ts_dict[head[4]] = ts
+
+    with open(r'../output2/_coordination.txt', "w") as f:
+        for key in ts_dict:
+            f.write(str(ts_dict[key]) + '\n')
+
+    with open(r'../output2/_index.txt', "w") as f:
         for key in tc_index:
             f.write(key)
-
