@@ -140,6 +140,9 @@ if __name__ == '__main__':
                 ts = []
                 ts_list.append(head[4])
                 for key in range(len(data)):
+                    # 两个点一致之后会报0？
+                    if key != 0 and data.LONG[key - 1] == data.LONG[key] and data.LAT[key - 1] == data.LAT[key]:
+                        continue
                     ts.append(data.LONG[key])
                     ts.append(data.LAT[key])
                 ts_dict[head[4]] = ts
