@@ -14,7 +14,7 @@ if __name__ == '__main__':
     traj = {}
     ts_number = []
     with open(r'../_coordination.txt', "r") as f:
-        for key in range(830, 900, 1):
+        for key in range(1, 1000, 1):
             ts_number.append(key)
             header = f.readline().split()
             ts[key] = list(map(float, header))
