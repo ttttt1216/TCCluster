@@ -74,12 +74,27 @@ def get_year_list(type: str = 'data',
     return year_list
 
 
-def hainan_area(ts_list: list):
+def hainan_area(tc_data,
+                x_min: float = 105,
+                x_max: float = 118,
+                y_min: float = 15,
+                y_max: float = 22):
     """
-    :param ts_list:
+    :param y_max:
+    :param x_min:
+    :param x_max:
+    :param y_min:
+    :param tc_data:读取文件时得到的dataframe格式的数据
     :return:来判定该台风是否属于我们的研究范围，Hainan所在的area
     """
-    pass
+    counter = 0
+    total = len(tc_data)
+    for point in range(len(tc_data)):
+        x = tc_data.LONG[point]
+        y = tc_data.LAT[point]
+        if x_min <= x <= x_max and y_min <= y <= y_max:
+            counter += 1
+    return counter / total
 
 
 def generate_cluster_file(ts_dict: dict):
@@ -108,6 +123,19 @@ def generate_typhoon_index(tc_index: list):
     return 0
 
 
+def tc_to_list(tc_df):
+    """
+    将单个的dataframe的台风数据转为list
+    :param tc_df:
+    :return:ts是一个list的形式
+    """
+    ts = []
+    for key in range(len(tc_df)):
+        ts.append(tc_df.LONG[key])
+        ts.append(tc_df.LAT[key])
+    return ts
+
+
 """
     1. 将台风路径存储为单个的文件，删除nameless的台风
     2. 生成对应台风轨迹的_index.py文件
@@ -134,15 +162,14 @@ if __name__ == '__main__':
             elif head == 'nameless':
                 continue
             else:
-                name = r'../output_hainan/' + str(head[4] + head[7]) + '.txt'
-                tc_index.append(str(head[4] + head[7]) + '\n')
-                data.to_csv(name, index=False, sep=' ')
-                ts = []
-                ts_list.append(head[4])
-                for key in range(len(data)):
-                    ts.append(data.LONG[key])
-                    ts.append(data.LAT[key])
-                ts_dict[head[4]] = ts
+                if hainan_area(data) >= 0.1:
+                    name = r'../output_hainan/' + str(head[4] + head[7]) + '.txt'
+                    tc_index.append(str(head[4] + head[7]) + '\n')
+                    data.to_csv(name, index=False, sep=' ')
+                    ts_list.append(head[4])
+                    ts_dict[head[4]] = tc_to_list(data)
+                else:
+                    continue
 
     generate_cluster_file(ts_dict)
     generate_typhoon_index(tc_index)
