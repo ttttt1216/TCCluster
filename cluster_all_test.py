@@ -14,7 +14,7 @@ if __name__ == '__main__':
     traj = {}
     ts_number = []
     with open(r'../_coordination.txt', "r") as f:
-        for key in range(1, 1000, 1):
+        for key in range(1, 1164, 1):
             ts_number.append(key)
             header = f.readline().split()
             ts[key] = list(map(float, header))
@@ -31,7 +31,7 @@ if __name__ == '__main__':
             continue
         all_segs += approximate_trajectory_partitioning(traj[key], theta=6.0, traj_id=key)
 
-    norm_cluster, remove_cluster = line_segment_clustering(all_segs, min_lines=3, epsilon=20.0)
+    norm_cluster, remove_cluster = line_segment_clustering(all_segs, min_lines=2, epsilon=15.0)
     for k, v in remove_cluster.items():
         print("remove cluster: the cluster %d, the segment number %d" % (k, len(v)))
 
