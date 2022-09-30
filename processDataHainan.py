@@ -103,7 +103,7 @@ def generate_cluster_file(ts_dict: dict):
     :param ts_dict:
     :return:本部分进行文件的输出
     """
-    with open(r'../output_hainan/_coordination.txt', "w") as f:
+    with open(r'G:/1TianZhenshiyi/myCode/output_hainan/_coordination.txt', "w") as f:
         for f_key in ts_dict:
             for f_key_n in ts_dict[f_key]:
                 f.write(str(f_key_n) + ' ')
@@ -117,7 +117,7 @@ def generate_typhoon_index(tc_index: list):
     :param tc_index: 前面已经完成的index
     :return:
     """
-    with open(r'../output_hainan/_index.txt', "w") as f:
+    with open(r'G:/1TianZhenshiyi/myCode/output_hainan/_index.txt', "w") as f:
         for key in tc_index:
             f.write(key)
     return 0
@@ -152,7 +152,7 @@ if __name__ == '__main__':
     ts_dict = {}
     ts_list = []
     for key1 in year_list:
-        track = r"../CMABSTdata/CH" + str(key1) + "BST.txt"
+        track = r"G:/1TianZhenshiyi/myCode/CMABSTdata/CH" + str(key1) + "BST.txt"
         for key2 in range(1, 41, 1):
             number = str(key1)[-2:] + '{:0>2d}'.format(key2)
             head, data = reader(track, number)
@@ -162,14 +162,17 @@ if __name__ == '__main__':
             elif head == 'nameless':
                 continue
             else:
-                if hainan_area(data) >= 0.1:
-                    name = r'../output_hainan/' + str(head[4] + head[7]) + '.txt'
+                if hainan_area(data) >= 0.25:
+                    # 先保存原始的数据集
+                    name = r'G:/1TianZhenshiyi/myCode/output_hainan/' + str(head[4] + head[7]) + '.txt'
                     tc_index.append(str(head[4] + head[7]) + '\n')
                     data.to_csv(name, index=False, sep=' ')
+                    # 再去除重复x,y的行 作为data_delete
+                    data_delete = data.drop_duplicates(subset=['LAT','LONG'],keep='first').reset_index(drop=True)
                     ts_list.append(head[4])
-                    ts_dict[head[4]] = tc_to_list(data)
+                    ts_dict[head[4]] = tc_to_list(data_delete)
                 else:
                     continue
-
     generate_cluster_file(ts_dict)
     generate_typhoon_index(tc_index)
+

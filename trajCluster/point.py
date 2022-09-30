@@ -63,6 +63,7 @@ class Point(object):
             raise TypeError("The other object must 'float' type.")
 
     # 实现计算两点之间的距离， 这里的距离是欧式距离 ！！！地理坐标系中可以这么就算吗？
+    # TODO: 这里不能使用欧氏距离，应该考虑 Haversine distance
     def distance(self, other: 'Point'):
         return math.sqrt(math.pow(self.x - other.x, 2) + math.pow(self.y - other.y, 2))
 
@@ -76,6 +77,7 @@ class Point(object):
 
 
 # ！！！需要考虑地理坐标中的距离计算方法
+# TODO:地图上点到直线的距离的计算方法
 def _point2line_distance(point, start, end):
     """计算point到line的垂直距离通过向量的方式: distance = |es x ps| / |es|, es为起始点的项量表示, ps为point到start点的向量
     parameter

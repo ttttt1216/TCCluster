@@ -1,4 +1,4 @@
-# 2022-08-25
+# 2022-09-12
 # Zhenshiyi Tian
 
 import numpy as np
@@ -13,7 +13,7 @@ if __name__ == '__main__':
     ts = {}
     traj = {}
     ts_number = []
-    with open(r'../_coordination.txt', "r") as f:
+    with open(r'G:/1TianZhenshiyi/myCode/_coordination.txt', "r") as f:
         for key in range(1, 244, 1):
             ts_number.append(key)
             header = f.readline().split()
@@ -27,11 +27,11 @@ if __name__ == '__main__':
         # 如果两个点重合，就会报错??? 但是去掉之后还是会报错QAQ
         print(key)
         print(traj[key])
-        # if key == 53 :
+        # if key == 53 or key == 93 or key == 108 or key == 110 or key ==109:
         #     continue
-        all_segs += approximate_trajectory_partitioning(traj[key], theta=6.0, traj_id=key)
+        all_segs += approximate_trajectory_partitioning(traj[key], theta=0, traj_id=key)
 
-    norm_cluster, remove_cluster = line_segment_clustering(all_segs, min_lines=2, epsilon=15.0)
+    norm_cluster, remove_cluster = line_segment_clustering(all_segs, min_lines=2, epsilon=10.0)
     for k, v in remove_cluster.items():
         print("remove cluster: the cluster %d, the segment number %d" % (k, len(v)))
 
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=(9, 6))
     ax = fig.add_subplot(111)
 
-    main_traj_dict = representative_trajectory_generation(norm_cluster, min_lines=2, min_dist=1.0)
+    main_traj_dict = representative_trajectory_generation(norm_cluster, min_lines=3, min_dist=1.0)
     for c, v in main_traj_dict.items():
         v_x = [p.x for p in v]
         v_y = [p.y for p in v]
