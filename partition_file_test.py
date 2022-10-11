@@ -1,12 +1,8 @@
-# 2022-09-12
-# Zhenshiyi Tian
-
-import numpy as np
-
 from trajCluster.partition import approximate_trajectory_partitioning, segment_mdl_comp, rdp_trajectory_partitioning
 from trajCluster.point import Point
 from trajCluster.cluster import line_segment_clustering, representative_trajectory_generation
-from trajCluster.projection import wgs_2_mercator, mercator_2_wgs
+
+from matplotlib import pyplot as plt
 
 
 def plot_traj(traj_list,label_name="test"):
@@ -16,9 +12,7 @@ def plot_traj(traj_list,label_name="test"):
     # ax.scatter(source_line_x, source_line_y, c='c', alpha=0.5)
 
 
-from matplotlib import pyplot as plt
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     ts = {}
     traj = {}
     ts_number = []
@@ -34,16 +28,11 @@ if __name__ == '__main__':
     fig1 = plt.figure(1,figsize=(9, 6))
     ax = fig1.add_subplot(111)
     for key in ts_number:
-        plot_traj(traj[key],label_name=str(key))
+        plot_traj(traj[key],label_name = str(key))
 
-    # part 1: partition
+    # part 1: partition及展示部分
     all_segs = []
     for key in ts_number:
-        # 如果两个点重合，就会报错??? 但是去掉之后还是会报错QAQ
-        print(key)
-        print(traj[key])
-        # if key == 53 or key == 93 or key == 108 or key == 110 or key ==109:
-        #     continue
         all_segs += approximate_trajectory_partitioning(traj[key], theta=35, traj_id=key)
 
     for s in all_segs:
@@ -57,31 +46,6 @@ if __name__ == '__main__':
     cluster_s_y.extend([s.start.y for s in all_segs])
     cluster_s_y.extend([s.end.y for s in all_segs])
     ax.scatter(cluster_s_x, cluster_s_y, c='k', alpha=1, s=10, label="cluster")
-
-    # cluster
-    print("-----clustering-----")
-    norm_cluster, remove_cluster = line_segment_clustering(all_segs, min_lines=15, epsilon=200000.0)
-    for k, v in remove_cluster.items():
-        print("remove cluster: the cluster %d, the segment number %d" % (k, len(v)))
-
-    cluster_s_x, cluster_s_y = [], []
-    for k, v in norm_cluster.items():
-        cluster_s_x.extend([s.start.x for s in v])
-        cluster_s_x.extend([s.end.x for s in v])
-
-        cluster_s_y.extend([s.start.y for s in v])
-        cluster_s_y.extend([s.end.y for s in v])
-        print("using cluster: the cluster %d, the segment number %d" % (k, len(v)))
-
-    # fig = plt.figure(figsize=(9, 6))
-    # ax = fig.add_subplot(111)
-
-    print("-----representative trajectories-----")
-    main_traj_dict = representative_trajectory_generation(norm_cluster, min_lines=1, min_dist=100000.0)
-    for c, v in main_traj_dict.items():
-        v_x = [p.x for p in v]
-        v_y = [p.y for p in v]
-        ax.plot(v_x, v_y, lw=4.0, label="cluster_%d_main_trajectory" % c)
 
     # ax.legend()
     plt.savefig("./figures/trajectory-major.png", dpi=400)

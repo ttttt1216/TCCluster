@@ -83,12 +83,16 @@ class Segment(object):
 
     def get_all_distance(self, seg: 'Segment'):
         res = self.angle_distance(seg)
+        # print("angle",self.angle_distance(seg))
         # 起始点不能为同一个点
         if str(self.start) != str(self.end):
             res += self.parallel_distance(seg)
+            # print("para",self.parallel_distance(seg))
         # 不能为同一轨迹
         if self.traj_id != seg.traj_id:
             res += self.perpendicular_distance(seg)
+            # print("perpendicular",self.perpendicular_distance(seg))
+        # print("res",res)
         return res
 
 

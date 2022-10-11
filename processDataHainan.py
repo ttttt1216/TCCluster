@@ -12,6 +12,7 @@ from typing import List
 from typing import Union
 from typing import Tuple
 from base import get_variables
+from trajCluster.projection import wgs_2_utm49n
 
 
 def reader(typhoon_txt: os.PathLike, code: Union[str, int]) -> Tuple[List[str], pd.DataFrame]:
@@ -131,8 +132,10 @@ def tc_to_list(tc_df):
     """
     ts = []
     for key in range(len(tc_df)):
-        ts.append(tc_df.LONG[key])
-        ts.append(tc_df.LAT[key])
+        # 此处进行投影变换 保存的是先x后y的情况
+        x, y = wgs_2_utm49n(tc_df.LAT[key],tc_df.LONG[key])
+        ts.append(round(x, 2))
+        ts.append(round(y, 2))
     return ts
 
 
